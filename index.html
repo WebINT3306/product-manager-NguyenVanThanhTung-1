@@ -4,8 +4,124 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Quản lý Sản phẩm</title>
+  <style>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+  </style>
 </head>
 <body>
+  <h1>Bảng sản phẩm</h1>
+  <table id = "product-table" border="1">
+    <thead>
+      <tr>
+        <th id = "id">ID</th>
+        <th id = "name">Tên sản phẩm</th>
+        <th id = "category">Danh mục</th>
+        <th id = "price">Giá</th>
+        <th id = "quantity">Số lượng</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Dữ liệu sản phẩm sẽ được thêm vào đây bằng JavaScript -->
+    </tbody>
+  </table>
 
+  <h1>Thêm sản phẩm</h1>
+  <input type="text" id="input-name" placeholder="Tên sản phẩm">
+  <input type="text" id="input-category" placeholder="Danh mục">
+  <input type="number" id="input-price" placeholder="Giá">
+  <input type="number" id="input-quantity" placeholder="Số lượng">
+  <button id="btn-add">Thêm sản phẩm</button>
 </body>
+<script>
+  products = [];
+  isAsc = true;
+
+  const tableBody = document.querySelector('#product-table tbody');
+  function renderProductTable(products) {
+    tableBody.innerHTML = '';
+
+    products.forEach(product => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${product.id}</td>
+        <td>${product.name}</td>
+        <td>${product.category}</td>
+        <td>${product.price}</td>
+        <td>${product.quantity}</td>
+      `;
+      tableBody.appendChild(row);
+    });
+  }
+
+  function addProduct(name, category, price, quantity) {
+    const newProduct = {
+      id: products.length + 1,
+      name: name,
+      category: category,
+      price: price,
+      quantity: quantity
+    };
+    products.push(newProduct);
+    renderProductTable(products);
+  }
+
+  function sortByHeader(headerId) {
+    products.sort((a, b) => {
+      if (a[headerId] < b[headerId]) return isAsc ? -1 : 1;
+      if (a[headerId] > b[headerId]) return isAsc ? 1 : -1;
+      return 0;
+    });
+    isAsc = !isAsc; // Đảo chiều sắp xếp cho lần tiếp theo
+    renderProductTable(products);
+  }
+
+  // Gợi ý khung code
+  const xhr = new XMLHttpRequest();
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState === 4 && xhr.status === 200) {
+      const local_products = JSON.parse(xhr.responseText);
+      products = local_products;
+      renderProductTable(products);
+      // render ra bảng...
+    }
+  };
+  xhr.open('GET', 'products.json');
+  xhr.send();
+
+  document.getElementById('btn-add').addEventListener('click', function() {
+    const name = document.getElementById('input-name').value;
+    const category = document.getElementById('input-category').value;
+    const price = parseFloat(document.getElementById('input-price').value);
+    const quantity = parseInt(document.getElementById('input-quantity').value);
+
+    if (name && category && !isNaN(price) && !isNaN(quantity)) {
+      addProduct(name, category, price, quantity);
+      // Xóa giá trị sau khi thêm
+      document.getElementById('input-name').value = '';
+      document.getElementById('input-category').value = '';
+      document.getElementById('input-price').value = '';
+      document.getElementById('input-quantity').value = '';
+    } else {
+      alert('Vui lòng nhập đầy đủ thông tin sản phẩm!');
+    }
+  });
+
+  document.querySelectorAll('#product-table th').forEach(header => {
+    header.addEventListener('click', function() {
+      const headerId = this.id;
+      sortByHeader(headerId);
+    });
+  });
+
+</script>
 </html>
