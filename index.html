@@ -14,6 +14,7 @@
       text-align: left;
     }
     th {
+      cursor: pointer;
       background-color: #f2f2f2;
     }
   </style>
@@ -23,7 +24,7 @@
   <table id = "product-table" border="1">
     <thead>
       <tr>
-        <th id = "id">ID</th>
+        <th id = "id">STT</th>
         <th id = "name">Tên sản phẩm</th>
         <th id = "category">Danh mục</th>
         <th id = "price">Giá</th>
@@ -47,6 +48,8 @@
   isAsc = true;
 
   const tableBody = document.querySelector('#product-table tbody');
+  const nameHeader = document.getElementById('name');
+
   function renderProductTable(products) {
     tableBody.innerHTML = '';
 
@@ -77,12 +80,10 @@
 
   function sortByHeader(headerId) {
     products.sort((a, b) => {
-      if (a[headerId] < b[headerId]) return isAsc ? -1 : 1;
-      if (a[headerId] > b[headerId]) return isAsc ? 1 : -1;
-      return 0;
+      return isAsc 
+        ? a.name.localeCompare(b.name)
+        : b.name.localeCompare(a.name);
     });
-    isAsc = !isAsc; // Đảo chiều sắp xếp cho lần tiếp theo
-    renderProductTable(products);
   }
 
   // Gợi ý khung code
@@ -116,11 +117,26 @@
     }
   });
 
-  document.querySelectorAll('#product-table th').forEach(header => {
+  document.querySelectorAll('#name').forEach(header => {
     header.addEventListener('click', function() {
       const headerId = this.id;
       sortByHeader(headerId);
+      renderProductTable(products);
     });
+  });
+
+  nameHeader.addEventListener('click', function() {
+    products.sort((a, b) => {
+      return isAsc 
+        ? a.name.localeCompare(b.name)
+        : b.name.localeCompare(a.name);
+    });
+
+    isAsc = !isAsc;
+
+    nameHeader.innerHTML = "Tên sản phẩm " + (isAsc ? "▲" : "▼");
+
+    renderProductTable(products);
   });
 
 </script>
